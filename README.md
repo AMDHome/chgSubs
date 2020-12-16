@@ -4,11 +4,11 @@
     
 ## About
 
-  As someone who is fairly picky about his subtitles, something about SubsPleases subtitle's style just bugged me. It was probably the thicker outlines, but I can't really be sure. Anyways, I noticed that all these fansub groups used more or less the same format. It was usually a .mkv with a single video, audio, and sub a .ssa track bundled together. There is usually an embeded font as well. Since they were all so similar, I decided to write a script to change modify the subtitle style of any video with the same format and this is it. This script will restyle any subtitles in a .mkv with the aformentioned format to match either HorribleSubs or Erai-raws sub style. I choose these two as they were the most unoffensive to me. Unfortunately this script will not be for everyone as it is a bash script. You will need to know how to use linux or WSL and a terminal.
+  As someone who is fairly picky about his subtitles, something about SubsPleases subtitle's style just bugged me. It was probably the thicker outlines, but I can't really be sure. Anyways, I noticed that all these fansub groups used more or less the same format. It was usually a .mkv with a single video, audio, and sub a .ssa track bundled together. There is usually an embeded font as well. Since they were all so similar, I decided to write a script to change modify the subtitle style of any video with the same format and this is it. This script will restyle any subtitles in a .mkv with the aformentioned format to match either HorribleSubs or Erai-raws sub style. I choose these two as they were the most unoffensive to me. Unfortunately this script will not be for everyone as it is a bash script. You will need to know how to use linux or WSL (Windows Subsystem for Linux) and a terminal.
     
 ## How to use
 
-  1. Have either Linux or WSL installed
+  1. Have either Linux or WSL (Windows Subsystem for Linux) installed
   2. Have mkvtoolnix installed (Just use the package manager for your distro `yum/dnf/apt install mkvtoolnix`)
   3. Download the above script and font files and unzip it. (Use the green button)
   4. Navigate to it in a terminal and run it as follows:
