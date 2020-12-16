@@ -1,0 +1,91 @@
+#!/bin/bash
+#
+# Script Name: chgSubs
+# Author: AMDHome
+# Synopsis: Modifies embeded subtitles for SubsPlease and similar .mkv format videos
+#           to match HorribleSubs or Erai-raws subtitle style
+# Created: December 15, 2020
+# Usage: ./chgSubs [options] {source-filename}
+# Prerequisites:
+# 	- mkvtoolnix
+#
+
+# Globals
+SCRIPT_DIR=$(dirname "$0")
+MKV_LOCATION=""		# assigned later in the script
+SUB_LOCATION="/tmp/tmpSSA.ssa"
+FONT_LOCATION=$SCRIPT_DIR/OpenSans-Semibold-Horrible.ttf
+STYLE="H"
+
+function pHelp {
+	echo -e "Usage: ./chgSubs [options] {source-filename}\n"
+
+	echo -e "EX: ./chgSubs \"./Downloads/[SubsPlease] Anime Name - 10 (1080p) [S0M3T1NG].mkv\""
+	echo -e "    ./chgSubs \"/mnt/c/Users/usrnme/Downloads/[SubsPlease] Anime Name - 10 (1080p) [S0M3T1NG].mkv\""
+	echo -e "    ./chgSubs -e \"./Downloads/[SubsPlease] Anime Name - 10 (1080p) [S0M3T1NG].mkv\"\n\n"
+
+	echo -e "About: ./chgSubs is a script that will modify the style of the embeded subtitles in a SubsPlease"
+	echo -e "      	(or similarly formatted) .mkv file. Depending on the options provided, the modified"
+	echo -e "      	subtitles will match HorribleSubs or Erai-raws basic style. By default, the script"
+	echo -e "        will use Horriblesubs style.\n\n"
+
+	echo -e "Options:"
+	echo -e "\t-e: Use Erai-raws subtitle style."
+	echo -e "\t-h: Print this help page.\n\n"
+
+	echo -e "Notes: When running this on WSL, your downloads/desktop folder will most likely be at the following paths."
+	echo -e "\tDesktop: /mnt/c/Users/username/Desktop/"
+	echo -e "\tDownloads: /mnt/c/Users/username/Downloads/\n"
+	
+	exit 1
+}
+
+while getopts "he" OPTION; do
+	case $OPTION in
+		h)
+			pHelp
+			;;
+		e)
+			FONT_LOCATION=$SCRIPT_DIR/OpenSans-Semibold-Erai.ttf
+			STYLE="E"
+			;;
+		*)
+			pHelp
+			;;
+	esac
+done
+shift $((OPTIND -1))
+
+MKV_LOCATION=\"$1\"
+
+echo -e "\nExtracting Subtitles\n--------------------"
+eval mkvextract tracks $MKV_LOCATION 2:\"$SUB_LOCATION\"
+
+echo -e "\nModifying Subtitles\n--------------------"
+if [ "$STYLE" == "H" ]
+then
+	# HorribleSubs subtitle style
+	sed -i 's/^PlayResX.*$/PlayResX: 848/' "$SUB_LOCATION"
+	sed -i 's/^PlayResY.*$/PlayResY: 480/' "$SUB_LOCATION"
+	sed -i 's/^Style: Default.*$/Style: Default,Open Sans Semibold,36,\&H00FFFFFF,\&H000000FF,\&H00020713,\&H00000000,-1,0,0,0,100,100,0,0,1,1\.7,0,2,0,0,28,0/' "$SUB_LOCATION"
+
+elif [ "$STYLE" == "E" ]
+then
+	# Erai-raws subtitle style
+	sed -i 's/^PlayResX.*$/PlayResX: 1280/' "$SUB_LOCATION"
+	sed -i 's/^PlayResY.*$/PlayResY: 720/' "$SUB_LOCATION"
+	sed -i 's/^Style: Default.*$/Style: Default,Open Sans Semibold,45,\&H00FFFFFF,\&H000000FF,\&H00020713,\&H00000000,-1,0,0,0,100,100,0,0,1,1\.7,0,2,10,10,25,1/' "$SUB_LOCATION"
+fi
+echo "Done"
+
+echo -e "\nRemoving Old Subtitles\n--------------------"
+eval mkvmerge -o /tmp/tmpMKV.mkv -M -S $MKV_LOCATION 
+
+echo -e "\nBuilding New File\n--------------------"
+eval mkvmerge -o $MKV_LOCATION /tmp/tmpMKV.mkv --language 0:eng \"$SUB_LOCATION\" --attachment-mime-type application/x-truetype-font --attachment-name OpenSans-Semibold.ttf --attach-file $FONT_LOCATION
+
+echo -e "\nCleaning Up \n--------------------"
+rm "$SUB_LOCATION"
+rm /tmp/tmpMKV.mkv
+
+echo -e "\nDone"
