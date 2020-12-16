@@ -16,7 +16,33 @@
           `./chgSubs /path/to/your/video/file.mkv`
           
           You can also add a -e if you wish to use Erai-raw style subs.
-          
+
+## FAQ
+**Q:** Where do I find my video file on WSL?
+\
+**A:** Assuming you have it downloaded to your downloads folder or your desktop, you can find it at `/mnt/c/Users/username/Downloads/` or `/mnt/c/Users/username/Desktop/`. Remember to replace `username` with your own username
+
+
+**Q:** How long will this conversion take?
+\
+**A:** No more than a few seconds (3 - 8 seconds for me). The script does not reencode the video. It just modifies the subtitle file and changes out the font files for ones that were extracted from HorribleSubs/Erai-raws videos.
+
+**Q:** Will you ever make a more user friendly version of this for non techy people to use?
+\
+**A:** Probably not, I never learned how to make graphical user interfaces. Also I would probably have to rewrite everything since this is written in a scripting language that doesnt support it.
+
+**Q:** Will there ever be a Mac version?
+\
+**A:** Not from me. I don't own any Macs so I have no way of testing it. If you know how to code a shell script for Mac, it should be very easy to convert this to something you can use.
+
+**Q:** What is the difference between the two font files?
+\
+**A:** No clue. I pulled these out of a HorribleSubs and Erai-raws video. Not sure why they are different sizes. All I know is that the font sizing will not be correct if you use the wrong file. 
+
+**Q:** How would I do this manually?
+\
+**A:** See Below. 
+
 ## How would I do this manually.
 
   I applaud you for having the tenacity to even think about doing this manually. Although then again, I did too, so who am I to judge.
@@ -50,30 +76,6 @@ If you try and play the video with this subtitle file you may find that the size
 6. Rebuild the video file with the following command:
         <pre><code>mkvmerge -o <b>video_file.mkv</b> tmpMKV.mkv --language 0:eng subtitle.ssa --attachment-mime-type application/x-truetype-font --attachment-name OpenSans-Semibold.ttf --attach-file <b>OpenSans-Semibold-XXXXXX.ttf</b></pre></code>
 7. Delete any files created during this process
-        
-          
-## FAQ
-**Q:** Where do I find my video file on WSL?
-\
-**A:** Assuming you have it downloaded to your downloads folder or your desktop, you can find it at `/mnt/c/Users/username/Downloads/` or `/mnt/c/Users/username/Desktop/`. Remember to replace `username` with your own username
-
-
-**Q:** How long will this conversion take?
-\
-**A:** No more than a few seconds (3 - 8 seconds for me). The script does not reencode the video. It just modifies the subtitle file and changes out the font files for ones that were extracted from HorribleSubs/Erai-raws videos.
-
-**Q:** Will you ever make a more user friendly version of this for non techy people to use?
-\
-**A:** Probably not, I never learned how to make graphical user interfaces. Also I would probably have to rewrite everything since this is written in a scripting language that doesnt support it.
-
-**Q:** Will there ever be a Mac version?
-\
-**A:** Not from me. I don't own any Macs so I have no way of testing it. If you know how to code a shell script for Mac, it should be very easy to convert this to something you can use.
-
-**Q:** What is the difference between the two font files?
-\
-**A:** No clue. I pulled these out of a HorribleSubs and Erai-raws video. Not sure why they are different sizes. All I know is that the font sizing will not be correct if you use the wrong file. 
-
 
 ## Other
 If you notice any issues with the script or the subtitle/video output please let me know. You can submit a bug report or something. 
