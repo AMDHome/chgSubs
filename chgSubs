@@ -78,7 +78,7 @@ then
 fi
 echo "Done"
 
-echo -e "\nRemoving Old Subtitles\n--------------------"
+echo -e "\nRemoving Old Subtitles and Fonts\n--------------------"
 eval mkvmerge -o /tmp/tmpMKV.mkv -M -S $MKV_LOCATION 
 
 echo -e "\nBuilding New File\n--------------------"
