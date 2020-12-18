@@ -79,7 +79,8 @@ fi
 echo "Done"
 
 echo -e "\nRemoving Old Subtitles and Fonts\n--------------------"
-eval mkvmerge -o /tmp/tmpMKV.mkv -M -S $MKV_LOCATION 
+eval mkvpropedit $MKV_LOCATION --delete-attachment name:OpenSans-Semibold.ttf
+eval mkvmerge -o /tmp/tmpMKV.mkv -S $MKV_LOCATION 
 
 echo -e "\nBuilding New File\n--------------------"
 eval mkvmerge -o $MKV_LOCATION /tmp/tmpMKV.mkv --language 0:eng \"$SUB_LOCATION\" --attachment-mime-type application/x-truetype-font --attachment-name OpenSans-Semibold.ttf --attach-file $FONT_LOCATION
