@@ -3,6 +3,8 @@ from chgSubs import *
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
+import threading
+import platform
 
 class Root(Frame):
     def __init__(self, master):
@@ -22,6 +24,9 @@ class Root(Frame):
         self.columnconfigure(0, weight = 1)
         self.defautPadX = 20
 
+        # set platform
+        self.platform = platform.system()
+
         # set relevant filenames/paths
         self.download_path = "/"
         self.my_path = os.path.dirname(__file__)
@@ -37,6 +42,7 @@ class Root(Frame):
         self.setAdvancedValues(self.getOptionMenuVal())
 
 
+
     # draw body of program
     def initBody(self):
         # draw invisible body frame
@@ -50,7 +56,9 @@ class Root(Frame):
         self.initStyleSelector()
 
         self.initAdvanced()
-        self.initMKVToolNixSelection()
+
+        if self.platform == "Windows":
+            self.initMKVToolNixSelection()
 
 
 
@@ -412,7 +420,7 @@ class Root(Frame):
 
 
 
-    # footer (progress bar/status/button) (Line 415 - 474)
+    # footer (progress bar/status/button) (Line 415 - 491)
     def initFooter(self):
         # setup invisible footer frame
         self.footer = Frame(self)
@@ -425,16 +433,13 @@ class Root(Frame):
 
     # draw progress bar w/ status
     def progressBar(self):
-        # create progress bar progress variable
-        self.stepVal = IntVar()
-
         # draw progress bar
-        self.progressB = ttk.Progressbar(self.footer, orient = HORIZONTAL, mode = "determinate", variable = self.stepVal)
+        self.progressB = ttk.Progressbar(self.footer, orient = HORIZONTAL, mode = "determinate", maximum = 7)
         self.progressB.grid(column = 0, row = 0, sticky = "EW")
 
         # create progress step variable
         self.progText = StringVar()
-        self.progText.set("0/10")
+        self.progText.set("0/7")
         self.progressValue = 0
 
         # draw progress step text
@@ -448,28 +453,50 @@ class Root(Frame):
         self.sButtonText.set("Start")
 
         # draw button
-        self.sButton = ttk.Button(self.footer, textvariable = self.sButtonText, command = self.startConversion)
+        self.sButton = ttk.Button(self.footer, textvariable = self.sButtonText, command = self.finalChecks)
         self.sButton.grid(column = 0, row = 1, pady = 7, columnspan = 2, sticky = "SEW")
 
     # start button command
-    def startConversion(self):
+    def finalChecks(self):
+        # reset footer UI
+        self.progText.set("0/7")
+        self.progressValue = 0
+
         # check all variables to ensure validity
         validVars = self.checkVariables()
-
+        
         # go
         if validVars == None:
             return
         else:
             self.sButtonText.set("Working...")
-            chgSubs(self, *validVars)
+            self.startConversion(validVars)
+
+    # start conversion using multithreading
+    def startConversion(self, validVars):
+        thread = threading.Thread(target = chgSubs, args=(self, *validVars))
+        thread.start()
 
     # update footer function
     def updateProgress(self, message):
         self.progressValue += 1                                 # increment internal progress counter
-        self.progText.set(str(self.progressValue) + "/10")      # update progress text
-        self.progressB.step(10)                                 # update progress bar
+        self.progText.set(str(self.progressValue) + "/7")       # update progress text
+        self.progressB.step()                                   # update progress bar
         if message != None:
-            self.sButtonText.set("Working...\t" + message)          # update progress status
+            self.sButtonText.set("Working...\t" + message)      # update progress status
+
+    # stop with error message
+    def processError(self, message):
+        self.progressValue = 0
+        self.progText.set(str(self.progressValue) + "-/7")
+        if message != None:
+            self.sButtonText.set("Error!\t" + message)
+
+    # done command
+    def done(self):
+        self.progText.set("7/7")                                # update progress text
+        self.progressB['value'] = 7                             # update progress bar
+        self.sButtonText.set("Done!")                           # update progress status
         
         
 
@@ -478,67 +505,72 @@ class Root(Frame):
         # get all variables
         mkv_location = self.vFilename.get()
         font_location = self.fFilename.get()
-        propX = 0
-        propY = 0
+        propX = self.xEntry.get()
+        propY = self.yEntry.get()
         propStyle = self.styleText.get("1.0",'end-1c')
-        toolkit_location = self.tFolder.get()
+        toolkit_location = ""                           # defined below
 
-        temp = ""
+        # validate mkv_location
+        if not os.path.isfile(mkv_location):
+            self.sButtonText.set("Error: Please select a valid video file.")
+            return None
 
-#        # validate mkv_location
-#        if not os.path.isfile(mkv_location):
-#            self.sButtonText.set("Error: Please select a valid video file.")
-#            return None
-#
-#        # validate font_location
-#        if not os.path.isfile(font_location):
-#            self.sButtonText.set("Error: Please select a valid font file.")
-#            return None
-#
-#        # validate PlayResX value
-#        temp = self.xEntry.get()
-#        if temp == "":
-#            self.sButtonText.set("Error: The PlayResX field cannot be blank")
-#            return None
-#
-#        try:
-#            propX = int(temp)
-#        except ValueError:
-#            self.sButtonText.set("Error: The PlayResX field is invalid")
-#            return None
-#
-#        if propX < 1:
-#            self.sButtonText.set("Error: PlayResX must be greater than 0")
-#            return None
-#
-#        # validate PlayResY value
-#        temp = self.yEntry.get()
-#        if temp == "":
-#            self.sButtonText.set("Error: The PlayResY field cannot be blank")
-#            return None
-#
-#        try:
-#            propY = int(temp)
-#        except ValueError:
-#            self.sButtonText.set("Error: The PlayResY field is invalid")
-#            return None
-#
-#        if propY < 1:
-#            self.sButtonText.set("Error: PlayResY must be greater than 0")
-#            return None
-#
-#        # validate Stylecode
-#        if propStyle == "":
-#            self.sButtonText.set("Error: The Stylecode can not blank")
-#            return None
-#
-#        # validate MKVToolNix location
-#        if not os.path.isdir(toolkit_location):
-#            self.sButtonText.set("Error: The MKVToolNix location must be a folder/directory")
-#            return None
-#        
-#        if not self.checkFolderPrograms(os.listdir(toolkit_location)):
-#            self.sButtonText.set("Error: A program is missing from the MKVToolNix location (mkvextract, mkvmerge, mkvpropedit)")
-#            return None
-#        
+        # validate font_location
+        if not os.path.isfile(font_location):
+            self.sButtonText.set("Error: Please select a valid font file.")
+            return None
+
+        # validate PlayResX value
+        if propX == "":
+            self.sButtonText.set("Error: The PlayResX field cannot be blank")
+            return None
+
+        try:
+            temp = int(propX)
+        except ValueError:
+            self.sButtonText.set("Error: The PlayResX field is invalid")
+            return None
+
+        if temp < 1:
+            self.sButtonText.set("Error: PlayResX must be greater than 0")
+            return None
+
+        # validate PlayResY value
+        if propY == "":
+            self.sButtonText.set("Error: The PlayResY field cannot be blank")
+            return None
+
+        try:
+            temp = int(propY)
+        except ValueError:
+            self.sButtonText.set("Error: The PlayResY field is invalid")
+            return None
+
+        if temp < 1:
+            self.sButtonText.set("Error: PlayResY must be greater than 0")
+            return None
+
+        # validate Stylecode
+        if propStyle == "":
+            self.sButtonText.set("Error: The Stylecode can not blank")
+            return None
+
+        # validate MKVToolNix location
+        # on Windows
+        if self.platform == "Windows":
+            toolkit_location = self.tFolder.get() + "/"
+
+            if not os.path.isdir(toolkit_location):
+                self.sButtonText.set("Error: The MKVToolNix location must be a folder/directory")
+                return None
+        
+            if not self.checkFolderPrograms(os.listdir(toolkit_location)):
+                self.sButtonText.set("Error: A program is missing from the MKVToolNix location (mkvextract, mkvmerge, mkvpropedit)")
+                return None
+        
+        # on other stuff
+        else:
+            if not checkMKVTools():
+                return None
+
         return (mkv_location, font_location, propX, propY, propStyle, toolkit_location)
