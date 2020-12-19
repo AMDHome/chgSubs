@@ -1,4 +1,4 @@
-import os, webbrowser
+import os, sys, webbrowser
 from chgSubs import *
 from tkinter import *
 from tkinter import ttk
@@ -29,7 +29,11 @@ class Root(Frame):
 
         # set relevant filenames/paths
         self.download_path = "/"
-        self.my_path = os.path.dirname(__file__)
+
+        if getattr(sys, 'frozen', False):
+            self.my_path = os.path.dirname(sys.executable)
+        elif __file__:
+            self.my_path = os.path.dirname(__file__)
 
         if os.path.isdir(os.path.expanduser("~/Downloads")):
             self.download_path = os.path.expanduser("~/Downloads")
@@ -361,9 +365,17 @@ class Root(Frame):
         # callback registeration to check for valid folder path when selecting/entering path
         self.toolVal = self.register(self.validToolLocation)
 
-        # create toolkit path variable and set default
+        # create toolkit path variable and check default locations to set default path
         self.tFolder = StringVar()
-        self.tFolder.set(self.download_path)
+
+        if os.path.isdir("C:\\Program Files\\MKVToolNix"):
+            if self.checkFolderPrograms(os.listdir("C:\\Program Files\\MKVToolNix")):
+                self.tFolder.set("C:\\Program Files\\MKVToolNix")
+        elif os.path.isdir("C:\\Program Files (x86)\\MKVToolNix"):
+            if self.checkFolderPrograms(os.listdir("C:\\Program Files (x86)\\MKVToolNix")):
+                self.tFolder.set("C:\\Program Files (x86)\\MKVToolNix")
+        else:
+            self.tFolder.set(self.download_path)
 
         # draw frame contents
         self.toolPathEntry()
@@ -385,7 +397,7 @@ class Root(Frame):
     def downloadLink(self):
         self.dlLabel = Label(self.labelFrameMKVTool, text = "Click Here to download MKVToolNix", font="TkDefaultFont 7 underline", fg = "blue", cursor = "hand2")
         self.dlLabel.grid(column = 0, row = 1, padx = 5, sticky = "NW")
-        self.dlLabel.bind("<Button-1>", lambda e: webbrowser.open_new("https://mkvtoolnix.download/downloads.html"))
+        self.dlLabel.bind("<Button-1>", lambda e: webbrowser.open_new("https://www.fosshub.com/MKVToolNix.html"))
 
     # draw browse window
     def browseToolPath(self):
@@ -571,6 +583,7 @@ class Root(Frame):
         # on other stuff
         else:
             if not checkMKVTools():
+                self.sButtonText.set("Error: MKVToolNix missing. Please install the package mkvtoolnix using your package manager.")
                 return None
 
         return (mkv_location, font_location, propX, propY, propStyle, toolkit_location)
