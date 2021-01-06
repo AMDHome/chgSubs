@@ -1,5 +1,5 @@
 import os, sys, webbrowser
-from chgSubs import *
+import chgSubs
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
@@ -7,7 +7,7 @@ import threading
 import platform
 
 class Root(Frame):
-    def __init__(self, master):
+    def __init__(self, master, path):
 
         # init master
         Frame.__init__(self, master, width = 640, height = 520)
@@ -30,10 +30,7 @@ class Root(Frame):
         # set relevant filenames/paths
         self.download_path = "/"
 
-        if getattr(sys, 'frozen', False):
-            self.my_path = os.path.dirname(sys.executable)
-        elif __file__:
-            self.my_path = os.path.dirname(__file__)
+        self.my_path = path
 
         if os.path.isdir(os.path.expanduser("~/Downloads")):
             self.download_path = os.path.expanduser("~/Downloads")
@@ -486,7 +483,7 @@ class Root(Frame):
 
     # start conversion using multithreading
     def startConversion(self, validVars):
-        thread = threading.Thread(target = chgSubs, args=(self, *validVars))
+        thread = threading.Thread(target = chgSubs.convert, args = (*validVars,), kwargs = {'root':self})
         thread.start()
 
     # update footer function
@@ -582,7 +579,7 @@ class Root(Frame):
         
         # on other stuff
         else:
-            if not checkMKVTools():
+            if not chgSubs.checkMKVTools():
                 self.sButtonText.set("Error: MKVToolNix missing. Please install the package mkvtoolnix using your package manager.")
                 return None
 

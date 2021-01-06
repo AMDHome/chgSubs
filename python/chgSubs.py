@@ -8,21 +8,24 @@ def checkMKVTools():
         return True
     return False
 
-def chgSubs(root, mkv_location, font_location, propX, propY, propStyle, toolkit_location):
+def convert(mkv_location, font_location, propX, propY, propStyle, toolkit_location, root = None):
     tempdir = tempfile.gettempdir()
     tempssa = tempdir + "/tempssa.ssa"
     tempmkv = tempdir + "/tempmkv.mkv"
 
     # extracting subtitles
     # eval mkvextract tracks MKV_LOCATION 2:"SUB_LOCATION"
-    root.updateProgress("Extracting Subtitles")
+    if root:
+        root.updateProgress("Extracting Subtitles")
 
     cmd = [toolkit_location + "mkvextract", "tracks", mkv_location, "2:" + tempssa]
+
     subprocess.call(cmd)
 
 
     # modifying subtitles
-    root.updateProgress("Modifying Subtitles")
+    if root:
+        root.updateProgress("Modifying Subtitles")
 
     for line in fileinput.input(tempssa, inplace=True):
         stripline = line.strip()
@@ -41,7 +44,8 @@ def chgSubs(root, mkv_location, font_location, propX, propY, propStyle, toolkit_
 
     # remove unnecessary fonts from mkv
     # mkvpropedit MKV_LOCATION --delete-attachment name:OpenSans-Semibold.ttf
-    root.updateProgress("Removing Unnecessary Fonts")
+    if root:
+        root.updateProgress("Removing Unnecessary Fonts")
 
     cmd = [toolkit_location + "mkvpropedit", mkv_location , "--delete-attachment", "name:OpenSans-Semibold.ttf"]
     ret = subprocess.call(cmd)      # if this = 2 throw error
@@ -52,13 +56,17 @@ def chgSubs(root, mkv_location, font_location, propX, propY, propStyle, toolkit_
         ret = subprocess.call(cmd)
 
         if ret != 0:
-            root.processError("Write Error: Video Input - Please check permissions")
+            if root:
+                root.processError("Write Error: Video Input - Please check permissions")
+            else:
+                print("Write Error: Video Input - Please check permissions")
             return
 
 
     # remove old subtitles from mkv
     # mkvmerge -o /tmp/tmpMKV.mkv -S MKV_LOCATION
-    root.updateProgress("Removing Old Subtitles")
+    if root:
+        root.updateProgress("Removing Old Subtitles")
     
     cmd = [toolkit_location + "mkvmerge", "-o", tempmkv, "-S", mkv_location]
     subprocess.call(cmd)
@@ -69,7 +77,8 @@ def chgSubs(root, mkv_location, font_location, propX, propY, propStyle, toolkit_
     #          --attachment-mime-type application/x-truetype-font\
     #          --attachment-name OpenSans-Semibold.ttf\
     #          --attach-file FONT_LOCATION
-    root.updateProgress("Rebuilding MKV File")
+    if root:
+        root.updateProgress("Rebuilding MKV File")
 
     cmd = [toolkit_location + "mkvmerge", "-o", mkv_location, tempmkv, "--language", "0:eng", tempssa, "--attachment-mime-type", "application/x-truetype-font", "--attachment-name", "OpenSans-Semibold.ttf", "--attach-file", font_location]
     ret = subprocess.call(cmd)      # if this = 2 throw error
@@ -80,16 +89,21 @@ def chgSubs(root, mkv_location, font_location, propX, propY, propStyle, toolkit_
         ret = subprocess.call(cmd)
 
         if ret != 0:
-            root.processError("Write Error: Video Input - Please check permissions")
+            if root:
+                root.processError("Write Error: Video Input - Please check permissions")
+            else:
+                print("Write Error: Video Input - Please check permissions")
             return
 
 
     # Clean up temp files
-    root.updateProgress("Cleaning Up")
+    if root:
+        root.updateProgress("Cleaning Up")
     
     os.unlink(tempssa)
     os.unlink(tempmkv)
 
     # Done
-    root.done()
+    if root:
+        root.done()
     return
