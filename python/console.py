@@ -1,7 +1,7 @@
 import os, sys, platform
 import chgSubs
 
-def start(path = None, MKVToolKit = None, PlayResX = None, PlayResY = None, Stylecode = None, console = None, f = None, i = None, style = None):
+def start(path, MKVToolKit = None, PlayResX = None, PlayResY = None, Stylecode = None, console = None, f = None, i = None, style = None):
     
     stylePresetOptions = [("848", "480", "Style: Default,Open Sans Semibold,36,&H00FFFFFF,&H000000FF,&H00020713,&H00000000,-1,0,0,0,100,100,0,0,1,1.7,0,2,0,0,28,0"),
                           ("1280", "720", "Style: Default,Open Sans Semibold,45,&H00FFFFFF,&H000000FF,&H00020713,&H00000000,-1,0,0,0,100,100,0,0,1,1.7,0,2,10,10,25,1")]

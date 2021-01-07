@@ -7,7 +7,7 @@ import threading
 import platform
 
 class Root(Frame):
-    def __init__(self, master, path):
+    def __init__(self, master, path, MKVToolKit = None, PlayResX = None, PlayResY = None, Stylecode = None, f = None, i = None, style = None):
 
         # init master
         Frame.__init__(self, master, width = 640, height = 520)
@@ -31,6 +31,13 @@ class Root(Frame):
         self.download_path = "/"
 
         self.my_path = path
+        self.inputToolkit = MKVToolKit
+        self.inputX = PlayResX
+        self.inputY = PlayResY
+        self.inputStylecode = Stylecode
+        self.inputFont = f
+        self.inputVideo = i
+        self.inputPreset = style
 
         if os.path.isdir(os.path.expanduser("~/Downloads")):
             self.download_path = os.path.expanduser("~/Downloads")
@@ -40,7 +47,10 @@ class Root(Frame):
         self.initFooter()   # progress bar/text and start button
 
         # populate advanced fields
-        self.setAdvancedValues(self.getOptionMenuVal())
+        self.setAdvancedValues(self.getOptionMenuVal(self.style.get()))
+
+        # change defaults to custom values if set
+        self.populateCustomValues()
 
 
 
@@ -180,7 +190,7 @@ class Root(Frame):
 
 
 
-    # style presete box (box3) (Line 174 - 219)
+    # style preset box (box3) (Line 174 - 219)
     def initStyleSelector(self):
         # draw preset title frame
         self.labelFrameStyle = LabelFrame(self.body, text = "Style Presets")
@@ -202,9 +212,7 @@ class Root(Frame):
         self.styleSelector.grid(column = 0, row = 0, padx = 5, pady = 5, sticky = "NEW")
 
     # convert selection to a number value based on selected text
-    def getOptionMenuVal(self):
-        selectedStyle = self.style.get()
-
+    def getOptionMenuVal(self, selectedStyle):
         if selectedStyle == "HorribleSubs":
             return 0
         elif selectedStyle == "Erai-raws":
@@ -220,7 +228,7 @@ class Root(Frame):
     def updateAdvanced(self, inp):
         if inp in self.styleOptions:
             self.styleSelector.configure(foreground ='black')
-            self.setAdvancedValues(self.getOptionMenuVal())
+            self.setAdvancedValues(self.getOptionMenuVal(self.style.get()))
         else:
             self.styleSelector.configure(foreground ='red')
         return True
@@ -281,7 +289,7 @@ class Root(Frame):
 
     # Check to see if PlayResX is valid and color label appropriately
     def validX(self, inp):
-        selectedStyle = self.getOptionMenuVal()
+        selectedStyle = self.getOptionMenuVal(self.style.get())
         status = self.validXY(inp)
 
         # change Preset to 'Custom' if necessary
@@ -299,7 +307,7 @@ class Root(Frame):
 
     # Check to see if PlayResY is valid and color label appropriately 
     def validY(self, inp):
-        selectedStyle = self.getOptionMenuVal()
+        selectedStyle = self.getOptionMenuVal(self.style.get())
         status = self.validXY(inp)
 
         # change Preset to 'Custom' if necessary
@@ -327,7 +335,7 @@ class Root(Frame):
 
     # validate Stylecode and color label approperately
     def updateCustomStyle(self, event):
-        selectedStyle = self.getOptionMenuVal()
+        selectedStyle = self.getOptionMenuVal(self.style.get())
         content = event.widget.get("1.0", "end-1c")
 
         if content == "":
@@ -377,7 +385,11 @@ class Root(Frame):
         # draw frame contents
         self.toolPathEntry()
         self.toolPathButton()
-        self.downloadLink()
+        
+        if not self.checkFolderPrograms(os.listdir(self.tFolder.get())):
+            self.downloadLink()
+        else:
+            self.TPEntry.grid(pady = 5)
 
     # draw toolkit path textbox and populate with default values
     def toolPathEntry(self):
@@ -424,8 +436,8 @@ class Root(Frame):
 
     # checks to see if toolkit is actually in specified path
     def checkFolderPrograms(self, files):
-        sansExt = map(lambda x: os.path.splitext(x)[0], files)
-        return set(['mkvextract', 'mkvmerge', 'mkvpropedit']).issubset(list(sansExt))
+        sansExt = list(map(lambda x: os.path.splitext(x)[0], files))
+        return set(['mkvextract', 'mkvmerge', 'mkvpropedit']).issubset(sansExt)
 
 
 
@@ -507,7 +519,60 @@ class Root(Frame):
         self.progressB['value'] = 7                             # update progress bar
         self.sButtonText.set("Done!")                           # update progress status
         
-        
+      
+
+    # populate entries with custom values (if provided)
+    def populateCustomValues(self):
+        selectedStyle = self.getOptionMenuVal(self.style.get())
+
+        # set start Video
+        if self.inputVideo:
+            self.vFilename.set(self.inputVideo)
+            self.validVideo(self.inputVideo)
+
+        # set start Font
+        if self.inputFont:
+            self.fFilename.set(self.inputFont)
+            self.validFont(self.inputVideo)
+
+        # set input Preset
+        if self.inputPreset:
+            self.setOptionMenuVal(self.getOptionMenuVal(self.inputPreset))
+            self.updateAdvanced(self.inputPreset)
+
+        # set advanced PlayResX
+        if self.inputX:
+            if self.validX(self.inputX):
+                self.xEntry.set(self.inputX)
+                if selectedStyle != -1:
+                    if self.inputX != self.stylePresetOptions[selectedStyle][2]:
+                        self.setOptionMenuVal(-1)
+
+        # set advanced PlayResY
+        if self.inputY:
+            if self.validY(self.inputY):
+                self.yEntry.set(self.inputY)
+                if selectedStyle != -1:
+                    if self.inputY != self.stylePresetOptions[selectedStyle][2]:
+                        self.setOptionMenuVal(-1)
+
+        # set advanced Stylecode
+        if self.inputStylecode:
+            self.styleText.delete('1.0', END)
+            self.styleText.insert('1.0', self.inputStylecode)
+
+            if selectedStyle != -1:
+                if content != self.stylePresetOptions[selectedStyle][2]:
+                    self.setOptionMenuVal(-1)
+
+        # set toolkit location
+        if self.inputToolkit:
+            if self.checkFolderPrograms(os.listdir(self.inputToolkit)):
+                self.tFolder.set(self.inputToolkit)
+                self.validToolLocation(self.tFolder.get())
+            
+
+
 
     # final check to make sure everything is good before starting conversion
     def checkVariables(self):

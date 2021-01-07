@@ -26,11 +26,21 @@ def validFile(file):
     global currPath, parser
 
     if not os.path.isfile(file):
-        if not os.path.isfile(path + file):
+        if not os.path.isfile(currPath + file):
             parser.error("File not found.")
             return False
 
     return file
+
+
+def validFolder(path):
+    global currPath, parser
+
+    if not os.path.isdir(path):
+        parser.error("File not found.")
+        return False
+
+    return path
 
 
 if __name__ == '__main__':
@@ -52,7 +62,7 @@ if __name__ == '__main__':
     parser.add_argument("-Y", "--PlayResY", metavar = "<PlayResY>", help = "Custom PlayResY value", type = validPlayRes)
     parser.add_argument("--Stylecode", metavar = "<Stylecode>", help = "Custom stylecode values")
 
-    parser.add_argument("-m", "--MKVToolKit", metavar = "<mkvtoolkit_location>", help = "Path to MKVToolKit", type = validFile)
+    parser.add_argument("-m", "--MKVToolKit", metavar = "<mkvtoolkit_location>", help = "Path to MKVToolKit", type = validFolder)
     args = parser.parse_args()
 
     if args.console is not False:
@@ -63,12 +73,13 @@ if __name__ == '__main__':
             if args.PlayResX is None or args.PlayResY is None or args.StyleCode is None:
                 parser.error("You must specify a style and/or custom PlayRes and Stylecode values")            
 
-    print(args)
     if args.console:
         console.start(path = currPath, MKVToolKit = args.MKVToolKit, PlayResX = args.PlayResX,
                       PlayResY = args.PlayResY, Stylecode = args.Stylecode, console = args.console,
                       f = args.f, i = args.i, style = args.style)
 
     else:
-        root = Root(Tk(),currPath)
+        root = Root(Tk(), currPath, MKVToolKit = args.MKVToolKit, PlayResX = args.PlayResX,
+                    PlayResY = args.PlayResY, Stylecode = args.Stylecode, f = args.f, i = args.i,
+                    style = args.style)
         root.mainloop()
