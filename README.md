@@ -18,4 +18,5 @@ Please note: if you chose to install the portable version of mkvtoolnix, you wil
 
 ### Linux
 
-Download the source code and run `python3 ./main.py` in the python folder for a GUI or run `sh ./chgSubs` for the bash command line version.
+1. Download mkvtoolnix using your local package manager
+2. Download the source code and run `python3 ./main.py` in the python folder for a GUI or run `sh ./chgSubs` for the bash command line version.
