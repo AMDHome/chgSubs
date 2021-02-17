@@ -79,7 +79,7 @@ if __name__ == '__main__':
                       f = args.f, i = args.i, style = args.style)
 
     else:
-        root = Root(Tk(), currPath, MKVToolKit = args.MKVToolKit, PlayResX = args.PlayResX,
+        root = Root(Tk(), version, currPath, MKVToolKit = args.MKVToolKit, PlayResX = args.PlayResX,
                     PlayResY = args.PlayResY, Stylecode = args.Stylecode, f = args.f, i = args.i,
                     style = args.style)
         root.mainloop()

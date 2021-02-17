@@ -7,11 +7,11 @@ import threading
 import platform
 
 class Root(Frame):
-    def __init__(self, master, path, MKVToolKit = None, PlayResX = None, PlayResY = None, Stylecode = None, f = None, i = None, style = None):
+    def __init__(self, master, version, path, MKVToolKit = None, PlayResX = None, PlayResY = None, Stylecode = None, f = None, i = None, style = None):
 
         # init master
         Frame.__init__(self, master, width = 640, height = 520)
-        self.master.title("chgSubs by AMDHome")
+        self.master.title("chgSubs by AMDHome v" + str(version))
         self.master.geometry("640x520")             # default size
         self.master.minsize(640, 520)               # min size
         self.master.rowconfigure(0, weight = 1)     # allow for dynamic resizing in the vertical direction
