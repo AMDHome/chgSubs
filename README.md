@@ -9,7 +9,7 @@
 
 ### Windows
 
-  1. Download and install mkvtoolnix from the following link: (https://www.fosshub.com/MKVToolNix.html)[https://www.fosshub.com/MKVToolNix.html]
+  1. Download and install mkvtoolnix from the following link: https://www.fosshub.com/MKVToolNix.html
   2. Download and unzip the program from our releases tab
   3. Launch chgSubs.exe and select your video file.
   4. Select the style preset and the font you want to use and press go.
